@@ -32,9 +32,7 @@ export default function Registro() {
     const nfts = await Promise.all(data.map(async i => {
       const tokenUri = await tokenContract.tokenURI(i.tokenId)
       const meta = await axios.get(tokenUri)
-      let precio = ethers.utils.formatUnits(i.precio.toString(), 'ether')
       let nft = {
-        precio,
         tokenId: i.tokenId.toNumber(),
         seller: i.seller,
         owner: i.owner,
@@ -44,13 +42,33 @@ export default function Registro() {
       }
       return nft
     }))
+
+    const nftsNoDuplicados = [];
+    nfts.forEach((item)=>{
+      let entra = true;
+    	for(var i=0; i<nftsNoDuplicados.length; i++){
+        if(item.tokenId == nftsNoDuplicados[i].tokenId){
+          entra = false;
+        }
+      }
+      if (entra) nftsNoDuplicados.push(item);
+    })
+
     /* create a filtered array of items that have been sold */
-    const nftsVendidos = nfts.filter(i => i.vendido)
+    const nftsVendidos = nftsNoDuplicados.filter(i => i.vendido)
     setSold(nftsVendidos)
-    setNfts(nfts)
+    setNfts(nftsNoDuplicados)
     setLoadingState('loaded') 
   }
-  if (loadingState === 'loaded' && !nfts.length) return (<h1 className="py-10 px-20 text-3xl">No he creado ningún NFT</h1>)
+  if (loadingState === 'loaded' && !nfts.length) 
+    return (
+      <div className="container">
+        <hr className="mt-2 mb-5"></hr>
+        <h1 className="py-10 px-20 text-3xl alert alert-warning text-center">
+          No he creado ningún NFT
+        </h1>
+      </div>
+    )
   return (
     <div className="container">
       <h2>NFTs creados</h2>
@@ -66,7 +84,6 @@ export default function Registro() {
                 <img src={nft.imagen} className="img-fluid img-thumbnail"/>
                 <div className="card-body">
                   <p className="card-text">Nombre: {nft.nombre}</p>
-                  <p className="card-text">Precio - {nft.price} ETH</p>
                 </div>
               </div>
               <hr></hr>
@@ -88,8 +105,7 @@ export default function Registro() {
                     </div>
                     <img src={nft.imagen} className="img-fluid img-thumbnail"/>
                     <div className="card-body">
-                      <p className="card-text">Nombre: {nft.name}</p>
-                      <p className="card-text">Precio - {nft.precio} ETH</p>
+                      <p className="card-text">Nombre: {nft.nombre}</p>
                     </div>
                   </div>
                   <hr></hr>

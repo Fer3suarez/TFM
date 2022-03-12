@@ -61,9 +61,18 @@ export default function Galeria() {
     //loadNFTs()
     router.push('/mis-nft')
   }
-  if (loadingState === 'loaded' && !nfts.length) return (<h1 className="px-20 py-10 text-3xl">No hay NFTs en el mercado</h1>)
+  if (loadingState === 'loaded' && !nfts.length) 
+    return (
+      <div className="container">
+        <hr className="mt-2 mb-5"></hr>
+        <h1 className="py-10 px-20 text-3xl alert alert-warning text-center">
+          No hay NFTs en el mercado
+        </h1>
+      </div>
+    )
   return (
     <div className="container">
+      <h2>Galeria</h2>
       <hr className="mt-2 mb-5"></hr>
       <div className="row text-center text-lg-start">
         {

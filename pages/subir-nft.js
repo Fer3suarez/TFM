@@ -38,12 +38,11 @@ export default function CreateNFT() {
     if (!nombre || !descripcion || !precio || !fileUrl) return
     /* first, upload to IPFS */
     const data = JSON.stringify({
-      nombre, descripcion, imagen: fileUrl
+      nombre, descripcion, precio, imagen: fileUrl
     })
     try {
       const added = await client.add(data)
       const url = `https://ipfs.infura.io/ipfs/${added.path}`
-      /* after file is uploaded to IPFS, pass the URL to save it on Polygon */
       createSale(url)
     } catch (error) {
       console.log('Error uploading file: ', error)
@@ -57,23 +56,26 @@ export default function CreateNFT() {
     const signer = provider.getSigner()
     
     /* next, create the item */
-    let contract = new ethers.Contract(nftaddress, NFT.abi, signer)
-    let transaccion = await contract.createToken(url)
+    let nftContract = new ethers.Contract(nftaddress, NFT.abi, signer)
+    let marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
+    let transaccion = await nftContract.createToken(url)
     let tx = await transaccion.wait()
     let event = tx.events[0]
     let value = event.args[2]
     let tokenId = value.toNumber()
 
     const precio = ethers.utils.parseUnits(formInput.precio, 'ether')
+
+    router.push('/mis-nft')
   
-    /* then list the item for sale on the marketplace */
-    contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
-    let precioGas = await contract.getPrecioGas()
+    /*/* then list the item for sale on the marketplace 
+    marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
+    let precioGas = await marketContract.getPrecioGas()
     precioGas = precioGas.toString()
 
-    transaccion = await contract.ponerNFTMercado(nftaddress, tokenId, precio, { value: precioGas })
+    transaccion = await marketContract.ponerNFTMercado(nftaddress, tokenId, precio, { value: precioGas })
     await transaccion.wait()
-    router.push('/')
+    router.push('/')*/
   }
 
   return (

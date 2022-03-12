@@ -1,5 +1,5 @@
 import {  ethers } from 'ethers'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 import Web3Modal from 'web3modal'
@@ -17,11 +17,19 @@ export default function MisNFTs() {
   const [loadingState, setLoadingState] = useState('not-loaded')
 	const [id, setId] = useState(null)
 	const [owner, setOwner] = useState('')
+  const [precio, setPrecio] = useState('')
 
   const router = useRouter()
   useEffect(() => {
     cargarNFTs()
   }, [])
+
+  const handleChange = useCallback(
+		(e) => {
+			setPrecio(e.target.value)
+		},
+		[setPrecio]
+	)
 
  async function venderNFT(nft) {
     const provider = new ethers.providers.Web3Provider(window.ethereum)
@@ -42,7 +50,7 @@ export default function MisNFTs() {
 
     let precioGas = await marketContract.getPrecioGas()
     precioGas = precioGas.toString()
-    const nftPrecio = ethers.utils.parseUnits(nft.precio.toString(), 'ether')
+    const nftPrecio = ethers.utils.parseUnits(precio.toString(), 'ether')
   
     let tx = await marketContract.ponerNFTMercado(
       nftaddress,
@@ -66,27 +74,37 @@ export default function MisNFTs() {
     const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
 
     let account = await signer.getAddress()
-    const data = await marketContract.getMisNFTs()
+    const data = await tokenContract.getMisNFTs()
     
     const nfts = await Promise.all(data.map(async i => {
       const tokenUri = await tokenContract.tokenURI(i.tokenId)
       const tokenId = i[0].toNumber()
       const meta = await axios.get(tokenUri)
-      let precio = ethers.utils.formatUnits(i.precio.toString(), 'ether')
       let nft = {
-        precio,
         nombre: meta.data.nombre,
+        precio: meta.data.precio,
+        descripcion: meta.data.descripcion,
         tokenId: i.tokenId.toNumber(),
-        seller: i.seller,
+        seller: i[1],
         owner: i.owner,
         imagen: meta.data.imagen
       }
       return nft
     }))
-    setNfts(nfts)
+
+    const nftsCreados = nfts.filter((nft) => nft.owner === account)
+    setNfts(nftsCreados)
     setLoadingState('loaded') 
   }
-  if (loadingState === 'loaded' && !nfts.length) return (<h1 className="py-10 px-20 text-3xl">No tengo NFTs</h1>)
+  if (loadingState === 'loaded' && !nfts.length) 
+    return (
+      <div className="container">
+        <hr className="mt-2 mb-5"></hr>
+        <h1 className="py-10 px-20 text-3xl alert alert-warning text-center">
+          No tengo NFTs
+        </h1>
+      </div>
+    )
   return (
     <div className="container">
       <h2>Mis NFTs</h2>
@@ -102,8 +120,28 @@ export default function MisNFTs() {
                 <img src={nft.imagen} className="img-fluid img-thumbnail"/>
                 <div className="card-body">
                   <p className="card-text">Nombre: {nft.nombre}</p>
-                  <p className="card-text">Precio - {nft.precio} ETH</p>
-                  <button onClick={() => venderNFT(nft)} className="btn btn-primary rounded mx-auto d-block">Poner a la venta por: {nft.precio} ETH</button>
+                  <p className="card-text">Descripción: {nft.descripcion}</p>
+                  <p className="card-text">Precio inicial - {nft.precio} ETH</p>
+                  <p>
+                    <input
+                      required
+                      type='number'
+                      onChange={handleChange}
+                      name='name'
+                      placeholder='Precio de venta NFT'
+                      className='form-control col-md-2'
+                      autoComplete='off'
+                    />
+                    <div class="invalid-feedback">
+                      Por favor introduce un precio.
+                    </div>
+                  </p>
+                  { precio !== "" ? (
+                    <button onClick={() => venderNFT(nft)} className="btn btn-primary rounded mx-auto d-block">Poner a la venta por: {precio} ETH</button>
+                  ) : (
+                    <button disabled className="btn btn-primary rounded mx-auto d-block">Poner a la venta por: {precio} ETH</button>
+                  )
+                  }
                 </div>
               </div>
               <hr></hr>
