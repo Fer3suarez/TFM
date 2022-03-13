@@ -7,10 +7,9 @@ import Web3Modal from 'web3modal'
 const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0')
 
 import {
-  nftaddress, nftmarketaddress
+  nftmarketaddress
 } from '../config'
 
-import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import Market from '../artifacts/contracts/Market.sol/NFTMarket.json'
 
 export default function CreateNFT() {
@@ -56,26 +55,17 @@ export default function CreateNFT() {
     const signer = provider.getSigner()
     
     /* next, create the item */
-    let nftContract = new ethers.Contract(nftaddress, NFT.abi, signer)
     let marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
-    let transaccion = await nftContract.createToken(url)
-    let tx = await transaccion.wait()
-    let event = tx.events[0]
-    let value = event.args[2]
-    let tokenId = value.toNumber()
 
     const precio = ethers.utils.parseUnits(formInput.precio, 'ether')
 
-    router.push('/mis-nft')
-  
-    /*/* then list the item for sale on the marketplace 
-    marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
     let precioGas = await marketContract.getPrecioGas()
     precioGas = precioGas.toString()
 
-    transaccion = await marketContract.ponerNFTMercado(nftaddress, tokenId, precio, { value: precioGas })
+    let transaccion = await marketContract.createToken(url, precio, {value: precioGas})
     await transaccion.wait()
-    router.push('/')*/
+
+    router.push('/')
   }
 
   return (

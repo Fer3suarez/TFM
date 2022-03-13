@@ -2,12 +2,13 @@
 pragma solidity ^0.8.3;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+//import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 import "hardhat/console.sol";
 
-contract NFTMarket is ReentrancyGuard {
+contract NFTMarket is ERC721URIStorage {
   using Counters for Counters.Counter;
   /* Contadores de Id y de los NFTs vendidos usando Counters */
   Counters.Counter private _nftIds;
@@ -16,14 +17,12 @@ contract NFTMarket is ReentrancyGuard {
   address payable owner;
   uint256 precioGas = 0.025 ether;
 
-  constructor() {
+  constructor() ERC721("TFM", "TFM") {
     owner = payable(msg.sender);
   }
 
   /* Estructura de un NFT del mercado */
   struct MarketNFT {
-    uint256 nftId;
-    address nftContract;
     uint256 tokenId;
     address payable seller;
     address payable owner;
@@ -36,8 +35,6 @@ contract NFTMarket is ReentrancyGuard {
 
   /* Evento cuando ponemos un NFT al mercado */
   event CrearMarketNFT (
-    uint indexed nftId,
-    address indexed nftContract,
     uint256 indexed tokenId,
     address seller,
     address owner,
@@ -49,53 +46,69 @@ contract NFTMarket is ReentrancyGuard {
   function getPrecioGas() public view returns (uint256) {
     return precioGas;
   }
+
+  function createToken(string memory tokenURI, uint256 precio) public payable returns (uint) {
+    _nftIds.increment();
+    uint256 newTokenId = _nftIds.current();
+
+    _mint(msg.sender, newTokenId);
+    _setTokenURI(newTokenId, tokenURI);
+    ponerNFTMercado(newTokenId, precio);
+    return newTokenId;
+  }
   
   /* Función que pone un NFT en el mercado */
-  function ponerNFTMercado(address nftContract, uint256 tokenId, uint256 precio) public payable nonReentrant {
+  function ponerNFTMercado(uint256 tokenId, uint256 precio) private {
     require(precio > 0, "El precio no puede ser 0 o negativo"); //Restricción de precios
     require(msg.value == precioGas, "El precio debe ser mayor que el precio del gas"); //Restricción de precios
 
-    _nftIds.increment();
-    uint256 nftId = _nftIds.current();
-
     // Guardamos el nuevo NFT en el mapa del mercado
-    marketNFTs[nftId] =  MarketNFT(
-      nftId, // Id nuevo
-      nftContract,
+    marketNFTs[tokenId] =  MarketNFT(
       tokenId,
       payable(msg.sender), // Vendedor es el que pone a vender el NFT
-      payable(address(0)), 
+      payable(address(this)), 
       precio,
       false // false porque si lo ponemos a la venta, no está vendido
     );
 
-    IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId); // Transfer(from, to, id)
+    _transfer(msg.sender, address(this), tokenId); // Transfer(from, to, id)
 
     /* Emitimos el evento con los datos del NFT que guardamos en el mercado*/
     emit CrearMarketNFT(
-      nftId,
-      nftContract,
       tokenId,
       msg.sender,
-      address(0),
+      address(this),
       precio,
       false
     );
   }
 
+  function resellToken(uint256 tokenId, uint256 precio) public payable {
+      require(marketNFTs[tokenId].owner == msg.sender, "Only item owner can perform this operation");
+      require(msg.value == precioGas, "Price must be equal to listing price");
+      marketNFTs[tokenId].vendido = false;
+      marketNFTs[tokenId].precio = precio;
+      marketNFTs[tokenId].seller = payable(msg.sender);
+      marketNFTs[tokenId].owner = payable(address(this));
+      _nftsVendidos.decrement();
+
+      _transfer(msg.sender, address(this), tokenId);
+    }
+
   /* Función para comprar un NFT, realizando los cambios en los campos owner y vendido */
-  function compraNFT(address nftContract, uint256 nftId) public payable nonReentrant {
-    uint tokenId = marketNFTs[nftId].tokenId; // Recogemos el id del NFT
+  function compraNFT(uint256 tokenId) public payable {
+    uint precio = marketNFTs[tokenId].precio;
+    address seller = marketNFTs[tokenId].seller;
 
-    console.log("El antiguo seller es: %s", marketNFTs[nftId].seller);
-    console.log("El precio de compra ha sido de : %s", msg.value, ' ETH');
+    require(msg.value == precio, "Please submit the asking price in order to complete the purchase");
 
-    marketNFTs[nftId].seller.transfer(msg.value); 
-    IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId); // Transfer(from, to, id)
-    marketNFTs[nftId].owner = payable(msg.sender); // Cambiamos el propietario del NFT por el adquisidor del NFT
-    marketNFTs[nftId].vendido = true; // Ponemos a true el campo "vendido"
+    marketNFTs[tokenId].owner = payable(msg.sender);
+    marketNFTs[tokenId].vendido = true;
+    marketNFTs[tokenId].seller = payable(address(0));
     _nftsVendidos.increment();
-    payable(owner).transfer(precioGas); // El comprador paga el precio del gas
+    _transfer(address(this), msg.sender, tokenId);
+    payable(owner).transfer(precioGas);
+    payable(seller).transfer(msg.value);
   }
 
   /* Función que devuelve todos los NFTs que no han sido vendidos */
@@ -107,7 +120,7 @@ contract NFTMarket is ReentrancyGuard {
     MarketNFT[] memory nfts = new MarketNFT[](NFTsNoVendidos); // Creamos un array de NFTs no vendidos
 
     for (uint i = 0; i < numeroNFTs; i++) {
-      if (marketNFTs[i + 1].owner == address(0)) { // Seleccionamos los NFTs que no tienen owner
+      if (marketNFTs[i + 1].owner == address(this)) { // Seleccionamos los NFTs que no tienen owner
         uint currentId = i + 1;
         MarketNFT storage currentNFT = marketNFTs[currentId];
         nfts[currentIndex] = currentNFT;

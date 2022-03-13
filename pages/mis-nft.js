@@ -5,18 +5,15 @@ import { useRouter } from 'next/router'
 import Web3Modal from 'web3modal'
 
 import {
-  nftmarketaddress, nftaddress
+  nftmarketaddress
 } from '../config'
 
 import Market from '../artifacts/contracts/Market.sol/NFTMarket.json'
-import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 
 export default function MisNFTs() {
   const [nfts, setNfts] = useState([])
   const [nft, setNft] = useState({})
   const [loadingState, setLoadingState] = useState('not-loaded')
-	const [id, setId] = useState(null)
-	const [owner, setOwner] = useState('')
   const [precio, setPrecio] = useState('')
 
   const router = useRouter()
@@ -35,14 +32,8 @@ export default function MisNFTs() {
     const provider = new ethers.providers.Web3Provider(window.ethereum)
     const signer = provider.getSigner()
     const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
-    const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
 
-    setId(nft.tokenId)
-
-    const tokenOwner = await tokenContract.ownerOf(nft.tokenId)
-    setOwner(tokenOwner)
-
-    const nftData = await tokenContract.tokenURI(nft.tokenId)
+    const nftData = await marketContract.tokenURI(nft.tokenId)
     const data = await axios.get(nftData)
 
     setLoadingState("loaded")
@@ -52,8 +43,7 @@ export default function MisNFTs() {
     precioGas = precioGas.toString()
     const nftPrecio = ethers.utils.parseUnits(precio.toString(), 'ether')
   
-    let tx = await marketContract.ponerNFTMercado(
-      nftaddress,
+    let tx = await marketContract.resellToken(
       nft.tokenId,
       nftPrecio,
       { value: precioGas }
@@ -71,29 +61,28 @@ export default function MisNFTs() {
     const signer = provider.getSigner()
       
     const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
-    const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
 
-    let account = await signer.getAddress()
-    const data = await tokenContract.getMisNFTs()
+    const data = await marketContract.getMisNFTs()
     
     const nfts = await Promise.all(data.map(async i => {
-      const tokenUri = await tokenContract.tokenURI(i.tokenId)
-      const tokenId = i[0].toNumber()
-      const meta = await axios.get(tokenUri)
+      const tokenURI = await marketContract.tokenURI(i.tokenId)
+      const meta = await axios.get(tokenURI)
+      let precio = ethers.utils.formatUnits(i.precio.toString(), 'ether')
+
       let nft = {
         nombre: meta.data.nombre,
-        precio: meta.data.precio,
+        precio,
         descripcion: meta.data.descripcion,
         tokenId: i.tokenId.toNumber(),
-        seller: i[1],
+        seller: i.seller,
         owner: i.owner,
-        imagen: meta.data.imagen
+        imagen: meta.data.imagen,
+        tokenURI
       }
       return nft
     }))
 
-    const nftsCreados = nfts.filter((nft) => nft.owner === account)
-    setNfts(nftsCreados)
+    setNfts(nfts)
     setLoadingState('loaded') 
   }
   if (loadingState === 'loaded' && !nfts.length) 
@@ -122,7 +111,7 @@ export default function MisNFTs() {
                   <p className="card-text">Nombre: {nft.nombre}</p>
                   <p className="card-text">Descripción: {nft.descripcion}</p>
                   <p className="card-text">Precio inicial - {nft.precio} ETH</p>
-                  <p>
+                  <div>
                     <input
                       required
                       type='number'
@@ -132,10 +121,11 @@ export default function MisNFTs() {
                       className='form-control col-md-2'
                       autoComplete='off'
                     />
-                    <div class="invalid-feedback">
+                    <div className="invalid-feedback">
                       Por favor introduce un precio.
                     </div>
-                  </p>
+                  </div>
+                  <br></br>
                   { precio !== "" ? (
                     <button onClick={() => venderNFT(nft)} className="btn btn-primary rounded mx-auto d-block">Poner a la venta por: {precio} ETH</button>
                   ) : (

@@ -6,13 +6,10 @@ import Web3Modal from "web3modal"
 
 
 import {
-  nftaddress, nftmarketaddress
+  nftmarketaddress
 } from '../config'
 
-import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import Market from '../artifacts/contracts/Market.sol/NFTMarket.json'
-
-let rpcEndpoint = null
 
 export default function Galeria() {
   const [nfts, setNfts] = useState([])
@@ -23,18 +20,17 @@ export default function Galeria() {
   }, [])
   
   async function loadNFTs() {    
-    const provider = new ethers.providers.JsonRpcProvider(rpcEndpoint)
-    const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
+    const provider = new ethers.providers.JsonRpcProvider()
     const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, provider)
     const data = await marketContract.getNFTsMercado()
     
     const nfts = await Promise.all(data.map(async i => {
-      const tokenUri = await tokenContract.tokenURI(i.tokenId)
+      const tokenUri = await marketContract.tokenURI(i.tokenId)
       const meta = await axios.get(tokenUri)
       let precio = ethers.utils.formatUnits(i.precio.toString(), 'ether')
       let nft = {
         precio,
-        nftId: i.nftId.toNumber(),
+        nftId: i.tokenId.toNumber(),
         seller: i.seller,
         owner: i.owner,
         imagen: meta.data.imagen,
@@ -54,12 +50,12 @@ export default function Galeria() {
     const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
 
     const precio = ethers.utils.parseUnits(nft.precio.toString(), 'ether')
-    const transaccion = await contract.compraNFT(nftaddress, nft.nftId, {
+    const transaccion = await contract.compraNFT(nft.nftId, {
       value: precio
     })
     await transaccion.wait()
-    //loadNFTs()
-    router.push('/mis-nft')
+    loadNFTs()
+    //router.push('/mis-nft')
   }
   if (loadingState === 'loaded' && !nfts.length) 
     return (

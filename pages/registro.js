@@ -4,11 +4,10 @@ import axios from 'axios'
 import Web3Modal from 'web3modal'
 
 import {
-  nftmarketaddress, nftaddress
+  nftmarketaddress
 } from '../config'
 
 import Market from '../artifacts/contracts/Market.sol/NFTMarket.json'
-import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 
 export default function Registro() {
   const [nfts, setNfts] = useState([])
@@ -26,11 +25,10 @@ export default function Registro() {
     const signer = provider.getSigner()
       
     const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
-    const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
     const data = await marketContract.getMisNFTsCreados()
     
     const nfts = await Promise.all(data.map(async i => {
-      const tokenUri = await tokenContract.tokenURI(i.tokenId)
+      const tokenUri = await marketContract.tokenURI(i.tokenId)
       const meta = await axios.get(tokenUri)
       let nft = {
         tokenId: i.tokenId.toNumber(),
