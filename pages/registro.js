@@ -41,21 +41,11 @@ export default function Registro() {
       return nft
     }))
 
-    const nftsNoDuplicados = [];
-    nfts.forEach((item)=>{
-      let entra = true;
-    	for(var i=0; i<nftsNoDuplicados.length; i++){
-        if(item.tokenId == nftsNoDuplicados[i].tokenId){
-          entra = false;
-        }
-      }
-      if (entra) nftsNoDuplicados.push(item);
-    })
 
     /* create a filtered array of items that have been sold */
-    const nftsVendidos = nftsNoDuplicados.filter(i => i.vendido)
+    const nftsVendidos = nfts.filter(i => i.vendido)
     setSold(nftsVendidos)
-    setNfts(nftsNoDuplicados)
+    setNfts(nfts)
     setLoadingState('loaded') 
   }
   if (loadingState === 'loaded' && !nfts.length) 
@@ -89,7 +79,7 @@ export default function Registro() {
           ))
         }
       </div>
-      {Boolean(sold.length) && (
+      {/*Boolean(sold.length) && (
         <div>
           <h2>NFTs vendidos</h2>
           <hr className="mt-2 mb-5"></hr>
@@ -112,7 +102,7 @@ export default function Registro() {
             }
           </div>
         </div>
-      )}
+          )*/}
     </div>
   )
 }

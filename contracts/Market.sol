@@ -28,6 +28,7 @@ contract NFTMarket is ERC721URIStorage {
     address payable owner;
     uint256 precio;
     bool vendido;
+    address payable creador;
   }
 
   /* Mapa de los NFT que estén en el mercado */
@@ -39,7 +40,8 @@ contract NFTMarket is ERC721URIStorage {
     address seller,
     address owner,
     uint256 precio,
-    bool vendido
+    bool vendido,
+    address creador
   );
 
   /* Devolvemos el precio del gas */
@@ -68,7 +70,8 @@ contract NFTMarket is ERC721URIStorage {
       payable(msg.sender), // Vendedor es el que pone a vender el NFT
       payable(address(this)), 
       precio,
-      false // false porque si lo ponemos a la venta, no está vendido
+      false, // false porque si lo ponemos a la venta, no está vendido
+      payable(msg.sender)
     );
 
     _transfer(msg.sender, address(this), tokenId); // Transfer(from, to, id)
@@ -79,7 +82,8 @@ contract NFTMarket is ERC721URIStorage {
       msg.sender,
       address(this),
       precio,
-      false
+      false,
+      msg.sender
     );
   }
 
@@ -162,7 +166,7 @@ contract NFTMarket is ERC721URIStorage {
     uint currentIndex = 0;
 
     for (uint i = 0; i < numeroNFTs; i++) {
-      if (marketNFTs[i + 1].seller == msg.sender) {
+      if (marketNFTs[i + 1].creador == msg.sender) {
         nftCount += 1;
       }
     }
@@ -170,7 +174,7 @@ contract NFTMarket is ERC721URIStorage {
     MarketNFT[] memory nfts = new MarketNFT[](nftCount); // Creamos un array de los NFTs de un usuario 
 
     for (uint i = 0; i < numeroNFTs; i++) {
-      if (marketNFTs[i + 1].seller == msg.sender) { // Seleccionamos los NFTs del usuario que él es el seller
+      if (marketNFTs[i + 1].creador == msg.sender) { // Seleccionamos los NFTs del usuario que él es el seller
         uint currentId = i + 1;
         MarketNFT storage currentNFT = marketNFTs[currentId];
         nfts[currentIndex] = currentNFT;
