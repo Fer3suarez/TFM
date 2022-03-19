@@ -13,6 +13,7 @@
     "@nomiclabs/hardhat-waffle": "^2.0.2",
     "@openzeppelin/contracts": "^4.5.0",
     "axios": "^0.25.0",
+    "bootstrap-icons": "^1.8.1",
     "chai": "^4.3.6",
     "chai-bignumber": "^3.0.0",
     "dotenv": "^10.0.0",

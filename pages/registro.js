@@ -11,7 +11,6 @@ import Market from '../artifacts/contracts/Market.sol/NFTMarket.json'
 
 export default function Registro() {
   const [nfts, setNfts] = useState([])
-  const [sold, setSold] = useState([])
   const [loadingState, setLoadingState] = useState('not-loaded')
 
   useEffect(() => {
@@ -42,9 +41,6 @@ export default function Registro() {
     }))
 
 
-    /* create a filtered array of items that have been sold */
-    const nftsVendidos = nfts.filter(i => i.vendido)
-    setSold(nftsVendidos)
     setNfts(nfts)
     setLoadingState('loaded') 
   }
@@ -79,30 +75,6 @@ export default function Registro() {
           ))
         }
       </div>
-      {/*Boolean(sold.length) && (
-        <div>
-          <h2>NFTs vendidos</h2>
-          <hr className="mt-2 mb-5"></hr>
-          <div className="row text-center text-lg-start">
-            {
-              sold.map((nft, i) => (
-                <div key={i} className="col-lg-3 col-md-4 col-6">
-                  <div className="card">
-                    <div className="card-header">
-                      <p className="card-title ">Token ID: {nft.tokenId}</p>
-                    </div>
-                    <img src={nft.imagen} className="img-fluid img-thumbnail"/>
-                    <div className="card-body">
-                      <p className="card-text">Nombre: {nft.nombre}</p>
-                    </div>
-                  </div>
-                  <hr></hr>
-              </div>
-              ))
-            }
-          </div>
-        </div>
-          )*/}
     </div>
   )
 }

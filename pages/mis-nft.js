@@ -77,7 +77,8 @@ export default function MisNFTs() {
         seller: i.seller,
         owner: i.owner,
         imagen: meta.data.imagen,
-        tokenURI
+        tokenURI,
+        enVenta: i.enVenta
       }
       return nft
     }))
@@ -112,26 +113,30 @@ export default function MisNFTs() {
                   <p className="card-text">Descripción: {nft.descripcion}</p>
                   <p className="card-text">Precio inicial - {nft.precio} ETH</p>
                   <div>
-                    <input
-                      required
-                      type='number'
-                      onChange={handleChange}
-                      name='name'
-                      placeholder='Precio de venta NFT'
-                      className='form-control col-md-2'
-                      autoComplete='off'
-                    />
-                    <div className="invalid-feedback">
-                      Por favor introduce un precio.
-                    </div>
+                    { !nft.enVenta ? (
+                      <input
+                        required
+                        type='number'
+                        onChange={handleChange}
+                        name='name'
+                        placeholder='Precio de venta NFT'
+                        className='form-control col-md-2'
+                        autoComplete='off'
+                      />
+                    ) : (
+                      <div>
+                        <button disabled className="btn btn-danger rounded mx-auto d-block">NFT ya en el mercado</button>
+                      </div>
+                    )}
                   </div>
                   <br></br>
                   { precio !== "" ? (
                     <button onClick={() => venderNFT(nft)} className="btn btn-primary rounded mx-auto d-block">Poner a la venta por: {precio} ETH</button>
-                  ) : (
+                  ) : !nft.enVenta ? (
                     <button disabled className="btn btn-primary rounded mx-auto d-block">Poner a la venta por: {precio} ETH</button>
-                  )
-                  }
+                  ) : (
+                    <></>
+                  )}
                 </div>
               </div>
               <hr></hr>

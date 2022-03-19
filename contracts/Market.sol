@@ -29,6 +29,7 @@ contract NFTMarket is ERC721URIStorage {
     uint256 precio;
     bool vendido;
     address payable creador;
+    bool enVenta;
   }
 
   /* Mapa de los NFT que estén en el mercado */
@@ -41,7 +42,8 @@ contract NFTMarket is ERC721URIStorage {
     address owner,
     uint256 precio,
     bool vendido,
-    address creador
+    address creador,
+    bool enVenta
   );
 
   /* Devolvemos el precio del gas */
@@ -71,7 +73,8 @@ contract NFTMarket is ERC721URIStorage {
       payable(address(this)), 
       precio,
       false, // false porque si lo ponemos a la venta, no está vendido
-      payable(msg.sender)
+      payable(msg.sender),
+      true
     );
 
     _transfer(msg.sender, address(this), tokenId); // Transfer(from, to, id)
@@ -83,7 +86,8 @@ contract NFTMarket is ERC721URIStorage {
       address(this),
       precio,
       false,
-      msg.sender
+      msg.sender,
+      true
     );
   }
 
@@ -94,6 +98,7 @@ contract NFTMarket is ERC721URIStorage {
       marketNFTs[tokenId].precio = precio;
       marketNFTs[tokenId].seller = payable(msg.sender);
       marketNFTs[tokenId].owner = payable(address(this));
+      marketNFTs[tokenId].enVenta = true;
       _nftsVendidos.decrement();
 
       _transfer(msg.sender, address(this), tokenId);
@@ -108,6 +113,7 @@ contract NFTMarket is ERC721URIStorage {
 
     marketNFTs[tokenId].owner = payable(msg.sender);
     marketNFTs[tokenId].vendido = true;
+    marketNFTs[tokenId].enVenta = false;
     marketNFTs[tokenId].seller = payable(address(0));
     _nftsVendidos.increment();
     _transfer(address(this), msg.sender, tokenId);
@@ -141,7 +147,7 @@ contract NFTMarket is ERC721URIStorage {
     uint currentIndex = 0;
 
     for (uint i = 0; i < numeroNFTs; i++) {
-      if (marketNFTs[i + 1].owner == msg.sender) {
+      if (marketNFTs[i + 1].owner == msg.sender || marketNFTs[i + 1].seller == msg.sender) {
         nftCount += 1;
       }
     }
@@ -149,7 +155,7 @@ contract NFTMarket is ERC721URIStorage {
     MarketNFT[] memory nfts = new MarketNFT[](nftCount); // Creamos un array de los NFTs de un usuario 
 
     for (uint i = 0; i < numeroNFTs; i++) {
-      if (marketNFTs[i + 1].owner == msg.sender) { // Seleccionamos los NFTs del usuario que él es el owner
+      if (marketNFTs[i + 1].owner == msg.sender || marketNFTs[i + 1].seller == msg.sender) { // Seleccionamos los NFTs del usuario que él es el owner
         uint currentId = i + 1;
         MarketNFT storage currentNFT = marketNFTs[currentId];
         nfts[currentIndex] = currentNFT;

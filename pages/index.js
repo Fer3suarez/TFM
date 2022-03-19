@@ -14,10 +14,24 @@ import Market from '../artifacts/contracts/Market.sol/NFTMarket.json'
 export default function Galeria() {
   const [nfts, setNfts] = useState([])
   const [loadingState, setLoadingState] = useState('not-loaded')
+  const [cuentaActual, setCuentaActual] = useState('')
   const router = useRouter()
   useEffect(() => {
+    obtenerCuenta()
     loadNFTs()
   }, [])
+
+  // Obtener cuenta actual
+	const obtenerCuenta = async () => {
+		const { ethereum } = window
+    const accounts = await ethereum.request({ method: 'eth_accounts' })
+
+		if (accounts.length !== 0) {
+			setCuentaActual(accounts[0])
+		} else {
+			console.log('No authorized account found')
+		}
+	}
   
   async function loadNFTs() {    
     const provider = new ethers.providers.JsonRpcProvider()
@@ -79,7 +93,11 @@ export default function Galeria() {
                   <div className="card-body">
                     <h5 className="card-title">{nft.nombre}</h5>
                     <p className="card-text">{nft.descripcion}</p>
-                    <button onClick={() => comprarNFT(nft)} className="btn btn-primary rounded mx-auto d-block">Comprar: {nft.precio} ETH</button>
+                    {cuentaActual.toUpperCase() === nft.seller.toUpperCase() ? (
+                      <button disabled className="btn btn-danger rounded mx-auto d-block">No puedo comprar mi NFT</button>
+                    ) : (
+                      <button onClick={() => comprarNFT(nft)} className="btn btn-primary rounded mx-auto d-block">Comprar: {nft.precio} ETH</button>
+                    )}
                   </div>
                 </div>
                 <hr></hr>
