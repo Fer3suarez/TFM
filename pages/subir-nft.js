@@ -42,6 +42,7 @@ export default function CreateNFT() {
     try {
       const added = await client.add(data)
       const url = `https://ipfs.infura.io/ipfs/${added.path}`
+      console.log(url);
       createSale(url)
     } catch (error) {
       console.log('Error uploading file: ', error)

@@ -1,5 +1,6 @@
 const hre = require("hardhat");
 const fs = require('fs');
+const { BigNumber } = require("ethers");
 
 async function main() {
   const NFTMarket = await hre.ethers.getContractFactory("NFTMarket");

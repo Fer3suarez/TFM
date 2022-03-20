@@ -64,7 +64,7 @@ contract NFTMarket is ERC721URIStorage {
   /* Función que pone un NFT en el mercado */
   function ponerNFTMercado(uint256 tokenId, uint256 precio) private {
     require(precio > 0, "El precio no puede ser 0 o negativo"); //Restricción de precios
-    require(msg.value == precioGas, "El precio debe ser mayor que el precio del gas"); //Restricción de precios
+    //require(msg.value == precioGas, "El precio debe ser mayor que el precio del gas"); //Restricción de precios
 
     // Guardamos el nuevo NFT en el mapa del mercado
     marketNFTs[tokenId] =  MarketNFT(
@@ -91,7 +91,8 @@ contract NFTMarket is ERC721URIStorage {
     );
   }
 
-  function resellToken(uint256 tokenId, uint256 precio) public payable {
+  /* Función para poner a la venta un NFT en propiedad */
+  function venderNFT(uint256 tokenId, uint256 precio) public payable {
       require(marketNFTs[tokenId].owner == msg.sender, "Only item owner can perform this operation");
       require(msg.value == precioGas, "Price must be equal to listing price");
       marketNFTs[tokenId].vendido = false;
@@ -102,7 +103,7 @@ contract NFTMarket is ERC721URIStorage {
       _nftsVendidos.decrement();
 
       _transfer(msg.sender, address(this), tokenId);
-    }
+  }
 
   /* Función para comprar un NFT, realizando los cambios en los campos owner y vendido */
   function compraNFT(uint256 tokenId) public payable {

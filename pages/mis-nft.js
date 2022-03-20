@@ -43,7 +43,7 @@ export default function MisNFTs() {
     precioGas = precioGas.toString()
     const nftPrecio = ethers.utils.parseUnits(precio.toString(), 'ether')
   
-    let tx = await marketContract.resellToken(
+    let tx = await marketContract.venderNFT(
       nft.tokenId,
       nftPrecio,
       { value: precioGas }

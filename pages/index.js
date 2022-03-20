@@ -56,6 +56,7 @@ export default function Galeria() {
     setNfts(nfts)
     setLoadingState('loaded') 
   }
+
   async function comprarNFT(nft) {
     const web3Modal = new Web3Modal()
     const connection = await web3Modal.connect()
