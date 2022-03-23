@@ -1,7 +1,6 @@
 import { ethers } from 'ethers'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import Web3Modal from 'web3modal'
 
 import {
   nftmarketaddress
@@ -18,9 +17,7 @@ export default function Registro() {
   }, [])
 
   async function cargarNFTs() {
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)  
+    const provider = new ethers.providers.Web3Provider(window.ethereum)  
     const signer = provider.getSigner()
       
     const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
@@ -48,7 +45,7 @@ export default function Registro() {
     return (
       <div className="container">
         <hr className="mt-2 mb-5"></hr>
-        <h1 className="py-10 px-20 text-3xl alert alert-warning text-center">
+        <h1 className="py-10 px-20 text-3xl alert alert alert-warning alert-dismissible fade show text-center">
           No he creado ningún NFT
         </h1>
       </div>

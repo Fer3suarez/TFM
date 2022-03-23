@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { ethers } from 'ethers'
 import { create as ipfsHttpClient } from 'ipfs-http-client'
 import { useRouter } from 'next/router'
-import Web3Modal from 'web3modal'
 
 const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0')
 
@@ -50,9 +49,7 @@ export default function CreateNFT() {
   }
 
   async function createSale(url) {
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)   
+    const provider = new ethers.providers.Web3Provider(window.ethereum)   
     const signer = provider.getSigner()
     
     /* next, create the item */

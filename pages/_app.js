@@ -36,45 +36,43 @@ function GaleriaArte({ Component, pageProps }) {
           <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossOrigin="anonymous" />
     </Head>
     <div className='container-fluid'>
-      <div className="div text-center">
-        <h1>TFM Fernando Suárez</h1>
-      </div>
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
-        <div className='container-fluid justify-content-start'>
-          <a className="navbar-brand" href="#">
+        <div className='container-fluid'>
+          <a className="navbar-brand justify-content-start" href="http://localhost:3000/">
           <svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" fill="currentColor" className="bi bi-disc" viewBox="0 0 16 16">
             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
             <path d="M10 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM8 4a4 4 0 0 0-4 4 .5.5 0 0 1-1 0 5 5 0 0 1 5-5 .5.5 0 0 1 0 1zm4.5 3.5a.5.5 0 0 1 .5.5 5 5 0 0 1-5 5 .5.5 0 0 1 0-1 4 4 0 0 0 4-4 .5.5 0 0 1 .5-.5z"/>
           </svg>
           </a>
-          <ul className="navbar-nav">
-            <li className="nav-item navbar-left"><Link href="/">
+          <h1 className='justify-content-start'>Galeria de Arte Digital</h1>
+          <div className={`justify-content-end ${dropdownOpen ? 'visible' : 'invisible'}`}>
+            Cuenta: <span>{cuentaActual}</span><br></br>
+            Balance: <span>{balance}</span> ETH
+          </div>
+          <ul className="nav nav-pills justify-content-end">
+            <li className="nav-item navbar-right"><Link href="/">
               <a className="nav-link">
                 Galeria
               </a>
             </Link></li>
-            <li className="nav-item navbar-left"><Link href="/subir-nft">
+            <li className="nav-item navbar-right"><Link href="/subir-nft">
               <a className="nav-link">
                 Subir NFT
               </a>
             </Link></li>
-            <li className="nav-item navbar-left"><Link href="/mis-nft">
+            <li className="nav-item navbar-right"><Link href="/mis-nft">
               <a className="nav-link">
                 Mis NFTs
               </a>
             </Link></li>
-            <li className="nav-item navbar-left"><Link href="/registro">
+            <li className="nav-item navbar-right"><Link href="/registro">
               <a className="nav-link">
                 Registro
               </a>
             </Link></li>
           </ul>
         </div>
-        <div className={`justify-content-end ${dropdownOpen ? 'visible' : 'invisible'}`}>
-					Cuenta: <span>{cuentaActual}</span><br></br>
-          Balance: <span>{balance}</span> ETH
-				</div>
-        <button className="btn float-end" style={{justifyContent: "border: none; background: transparent"}} onClick={() => dropdownOpen ? setDropdownOpen(false) : setDropdownOpen(true)}>
+        <button type="button" data-bs-toggle="offcanvas" data-bs-target="#demo" className="btn float-end" style={{justifyContent: "border: none; background: transparent"}} onClick={() => dropdownOpen ? setDropdownOpen(false) : setDropdownOpen(true)}>
           <svg
             xmlns='http://www.w3.org/2000/svg'
             width='40'
@@ -91,6 +89,7 @@ function GaleriaArte({ Component, pageProps }) {
           </svg>
         </button>
       </nav>
+      <br></br>
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossOrigin="anonymous"></script>
       <Component {...pageProps} />
     </div>

@@ -2,8 +2,6 @@ import { ethers } from 'ethers'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useRouter } from 'next/router'
-import Web3Modal from "web3modal"
-
 
 import {
   nftmarketaddress
@@ -34,7 +32,7 @@ export default function Galeria() {
 	}
   
   async function loadNFTs() {    
-    const provider = new ethers.providers.JsonRpcProvider()
+    const provider = new ethers.providers.Web3Provider(window.ethereum)
     const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, provider)
     const data = await marketContract.getNFTsMercado()
     
@@ -58,9 +56,7 @@ export default function Galeria() {
   }
 
   async function comprarNFT(nft) {
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection) 
+    const provider = new ethers.providers.Web3Provider(window.ethereum)
     const signer = provider.getSigner()
     const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
 
@@ -70,13 +66,13 @@ export default function Galeria() {
     })
     await transaccion.wait()
     loadNFTs()
-    //router.push('/mis-nft')
+    router.push('/mis-nft')
   }
   if (loadingState === 'loaded' && !nfts.length) 
     return (
       <div className="container">
         <hr className="mt-2 mb-5"></hr>
-        <h1 className="py-10 px-20 text-3xl alert alert-warning text-center">
+        <h1 className="py-10 px-20 text-3xl alert alert-primary alert-dismissible fade show text-center">
           No hay NFTs en el mercado
         </h1>
       </div>
@@ -92,8 +88,10 @@ export default function Galeria() {
                 <div className="card">
                   <img src={nft.imagen} className="img-fluid img-thumbnail" alt="{nft.nombre}"/>
                   <div className="card-body">
-                    <h5 className="card-title">{nft.nombre}</h5>
-                    <p className="card-text">{nft.descripcion}</p>
+                    <h5 className="card-title text-center">{nft.nombre}</h5>
+                    <p className="card-text">
+                      Owner: {nft.seller.slice(0, 24)}...
+                    </p>
                     {cuentaActual.toUpperCase() === nft.seller.toUpperCase() ? (
                       <button disabled className="btn btn-danger rounded mx-auto d-block">No puedo comprar mi NFT</button>
                     ) : (
