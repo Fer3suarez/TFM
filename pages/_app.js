@@ -116,10 +116,7 @@ function GaleriaArte({ Component, pageProps }) {
     ) : (
       <div className='container-fluid vh-100 row m-0 text-center justify-content-center align-items-center'>
         <div className="col ">
-          <div className="spinner-border" role="status"></div>
-          <br></br>
-          <br></br>
-          <button className='alert alert-danger text-center'>Una vez haya conectado correctamente Metamask, recargue la página</button>
+          <div className="spinner-border" style={{width: "300px", height: "300px"}} role="status"></div>
         </div>
       </div>
     )}
