@@ -93,7 +93,7 @@ export default function Galeria() {
                       Owner: {nft.seller.slice(0, 24)}...
                     </p>
                     {cuentaActual.toUpperCase() === nft.seller.toUpperCase() ? (
-                      <button disabled className="btn btn-danger rounded mx-auto d-block">No puedo comprar mi NFT</button>
+                      <button disabled className="btn btn-danger rounded mx-auto d-block">En venta</button>
                     ) : (
                       <button onClick={() => comprarNFT(nft)} className="btn btn-primary rounded mx-auto d-block">Comprar: {nft.precio} ETH</button>
                     )}

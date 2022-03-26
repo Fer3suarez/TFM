@@ -15,7 +15,7 @@ contract NFTMarket is ERC721URIStorage {
   Counters.Counter private _nftsVendidos;
 
   address payable owner;
-  uint256 precioGas = 0.025 ether;
+  uint256 precioGas = 0.00025 ether;
 
   constructor() ERC721("TFM", "TFM") {
     owner = payable(msg.sender);

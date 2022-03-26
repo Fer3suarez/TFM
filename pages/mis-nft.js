@@ -14,6 +14,7 @@ export default function MisNFTs() {
   const [nft, setNft] = useState({})
   const [loadingState, setLoadingState] = useState('not-loaded')
   const [precio, setPrecio] = useState('')
+  const [idInput, setIdInput] = useState('')
 
   const router = useRouter()
   useEffect(() => {
@@ -23,8 +24,10 @@ export default function MisNFTs() {
   const handleChange = useCallback(
 		(e) => {
 			setPrecio(e.target.value)
+      setIdInput(e.target.id)
 		},
 		[setPrecio]
+    [setIdInput]
 	)
 
  async function venderNFT(nft) {
@@ -119,20 +122,27 @@ export default function MisNFTs() {
                         placeholder='Precio de venta NFT'
                         className='form-control col-md-2'
                         autoComplete='off'
+                        id={i}
                       />
                     ) : (
-                      <div>
-                        <button disabled className="btn btn-danger rounded mx-auto d-block">NFT ya en el mercado</button>
-                      </div>
+                      <input
+                        disabled
+                        type='number'
+                        onChange={handleChange}
+                        name='name'
+                        placeholder='Precio de venta NFT'
+                        className='form-control col-md-2'
+                        autoComplete='off'
+                      />
                     )}
                   </div>
                   <br></br>
-                  { precio !== "" ? (
-                    <button onClick={() => venderNFT(nft)} className="btn btn-primary rounded mx-auto d-block">Poner a la venta por: {precio} ETH</button>
+                  { precio != "" && i == idInput ? (
+                    <button onClick={() => venderNFT(nft)} className="btn btn-primary rounded mx-auto d-block">Vender por: {precio} ETH</button>
                   ) : !nft.enVenta ? (
-                    <button disabled className="btn btn-primary rounded mx-auto d-block">Poner a la venta por: {precio} ETH</button>
+                    <button disabled className="btn btn-primary rounded mx-auto d-block">Vender</button>
                   ) : (
-                    <></>
+                    <button disabled className="btn btn-danger rounded mx-auto d-block">En venta</button>
                   )}
                 </div>
               </div>
