@@ -101,10 +101,10 @@ function GaleriaArte({ Component, pageProps }) {
           </div>
           <ModalBody>
             Cuenta: <span>{cuentaActual}</span><br></br>
-            Balance: <span>{balance}</span> ETH
+            Balance: <span><b>{balance}</b></span> ETH
           </ModalBody>
           <ModalFooter>
-            <Button color="secondary" type="button" onClick={() => setDropdownOpen(!dropdownOpen)}>
+            <Button color="primary" type="button" onClick={() => setDropdownOpen(!dropdownOpen)}>
               Cerrar
             </Button>
           </ModalFooter>
