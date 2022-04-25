@@ -53,7 +53,7 @@ function GaleriaArte({ Component, pageProps }) {
               <path d="M10 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM8 4a4 4 0 0 0-4 4 .5.5 0 0 1-1 0 5 5 0 0 1 5-5 .5.5 0 0 1 0 1zm4.5 3.5a.5.5 0 0 1 .5.5 5 5 0 0 1-5 5 .5.5 0 0 1 0-1 4 4 0 0 0 4-4 .5.5 0 0 1 .5-.5z"/>
             </svg>
             </a>
-            <h1 className='justify-content-start'>Galeria de Arte Digital</h1>
+            <h1 className='justify-content-start'>Galería de Arte Digital</h1>
             <ul className="nav nav-pills justify-content-end">
               <li className="nav-item navbar-right"><Link href="/">
                 <a className="nav-link">
@@ -118,6 +118,7 @@ function GaleriaArte({ Component, pageProps }) {
         <div className="col ">
           <div className="spinner-border" style={{width: "300px", height: "300px"}} role="status"></div>
         </div>
+        <p>Es necesario conectar la cuenta de Metamask</p>
       </div>
     )}
       
