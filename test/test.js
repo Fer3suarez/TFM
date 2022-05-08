@@ -1,6 +1,6 @@
 describe("Market", function() {
     it("Se crean dos NFTs y se realiza una compra y una venta", async function() {
-      /* deploy the marketplace */
+      /* Despliegue del contrato inteligente */
       const NFTMarket = await hre.ethers.getContractFactory("NFTMarket");
       const nftMarket = await NFTMarket.deploy();
       await nftMarket.deployed();
@@ -10,19 +10,19 @@ describe("Market", function() {
   
       const auctionPrice = ethers.utils.parseUnits('1', 'ether')
   
-      /* create two tokens */
+      /* Creación de dos NFTs */
       await nftMarket.createToken("https://www.mytokenlocation.com", auctionPrice, { value: precioGas })
       await nftMarket.createToken("https://www.mytokenlocation2.com", auctionPrice, { value: precioGas })
         
       const [_, buyerAddress] = await ethers.getSigners()
     
-      /* execute sale of token to another user */
+      /* Compra de un NFT */
       await nftMarket.connect(buyerAddress).compraNFT(1, { value: auctionPrice })
   
-      /* resell a token */
+      /* Venta de un NFT */
       await nftMarket.connect(buyerAddress).venderNFT(1, auctionPrice, { value: precioGas })
   
-      /* query for and return the unsold items */
+      /* NFTs no vendidos */
       items = await nftMarket.getNFTsMercado()
       items = await Promise.all(items.map(async i => {
         const tokenUri = await nftMarket.tokenURI(i.tokenId)
